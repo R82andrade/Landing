@@ -1,48 +1,569 @@
-<gi!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" contant="Um bot que irá moderar e deixar a sua comunidade segura de um jeito fácil ">
-    <title>Senzala Bot - Modere sua comunidade Discord</title>
-    <link rel="stylesheet" type="text/css" href="style.css">
+    <meta name="description" content="Senzala Bot - A sanfona que organiza, anima e modera sua comunidade no Discord com a cultura do sertão.">
+    <title>Senzala Bot - A Sanfona da Sua Comunidade</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Merriweather:wght@700;900&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* --- 🎨 VARIÁVEIS DE DESIGN --- */
+        :root {
+            --color-background: #FDF8F0; /* Papel de cordel */
+            --color-text: #2D2520;       /* Tinta de xilogravura */
+            --color-primary: #E95A2B;    /* Laranja-sertão, pôr do sol */
+            --color-secondary: #B9A186;  /* Tom de areia, sépia */
+            --color-surface: #FFFFFF;    /* Branco para cards */
 
+            --font-heading: 'Merriweather', serif;
+            --font-body: 'Lato', sans-serif;
+
+            --shadow-sm: 0 4px 10px rgba(45, 37, 32, 0.05);
+            --shadow-md: 0 8px 30px rgba(45, 37, 32, 0.1);
+            --transition-fast: all 0.2s ease-out;
+            --transition-smooth: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+        }
+
+        /* --- 🛠️ RESET E CONFIGURAÇÕES GLOBAIS --- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: var(--font-body);
+            background-color: var(--color-background);
+            color: var(--color-text);
+            line-height: 1.7;
+            overflow-x: hidden;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        h1, h2, h3 {
+            font-family: var(--font-heading);
+            font-weight: 900;
+            line-height: 1.2;
+            color: var(--color-text);
+        }
+
+        h2 {
+            font-size: 2.8rem;
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+
+        .section-subtitle {
+            text-align: center;
+            font-size: 1.1rem;
+            max-width: 600px;
+            margin: 0 auto 4rem auto;
+            color: #635349;
+        }
+        
+        section {
+            padding: 100px 0;
+        }
+
+        /* ---  HEADER (CABEÇALHO) --- */
+        .header {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            padding: 20px 0;
+            z-index: 1000;
+            transition: var(--transition-fast);
+        }
+
+        .header.scrolled {
+            background-color: rgba(253, 248, 240, 0.85);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            padding: 15px 0;
+            border-bottom: 1px solid rgba(45, 37, 32, 0.08);
+        }
+
+        .nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-logo {
+            font-family: var(--font-heading);
+            font-weight: 900;
+            font-size: 1.6rem;
+            text-decoration: none;
+            color: var(--color-text);
+        }
+
+        .nav-list {
+            display: flex;
+            align-items: center;
+            gap: 40px;
+            list-style: none;
+        }
+
+        .nav-link {
+            text-decoration: none;
+            color: var(--color-text);
+            font-weight: 700;
+            transition: var(--transition-fast);
+        }
+
+        .nav-link:hover {
+            color: var(--color-primary);
+        }
+        
+        .cta-button {
+            display: inline-block;
+            background-color: var(--color-primary);
+            color: white;
+            padding: 12px 28px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 700;
+            transition: var(--transition-smooth);
+            box-shadow: 0 5px 15px rgba(233, 90, 43, 0.3);
+        }
+
+        .cta-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(233, 90, 43, 0.4);
+        }
+        
+        .mobile-menu-btn { display: none; } /* Será implementado em @media */
+
+        /* --- HERO (SEÇÃO PRINCIPAL) --- */
+        .hero {
+            padding-top: 180px;
+            padding-bottom: 120px;
+        }
+
+        .hero-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            align-items: center;
+            gap: 60px;
+        }
+
+        .hero-title {
+            font-size: 3.8rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .hero-subtitle {
+            font-size: 1.3rem;
+            margin-bottom: 2.5rem;
+            color: #635349;
+        }
+        
+        .hero-image-wrapper {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .hero-image {
+            width: 100%;
+            max-width: 450px;
+            filter: drop-shadow(0 20px 30px rgba(45,37,32,0.15));
+        }
+
+        /* --- FEATURES (FUNCIONALIDADES) --- */
+        .features {
+            background-color: #F8F1E7;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+        }
+
+        .feature-card {
+            background-color: var(--color-surface);
+            padding: 40px 30px;
+            border-radius: 12px;
+            text-align: center;
+            border: 1px solid rgba(45, 37, 32, 0.08);
+            transition: var(--transition-smooth);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .feature-icon {
+            font-size: 2.5rem;
+            color: var(--color-primary);
+            margin-bottom: 1.5rem;
+        }
+
+        .feature-card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        /* --- COMMANDS (COMANDOS) --- */
+        .commands-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        .command-card {
+            background-color: var(--color-surface);
+            padding: 25px;
+            border-radius: 12px;
+            border: 1px solid rgba(45, 37, 32, 0.08);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .command-info code {
+            background-color: #F8F1E7;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-family: 'Courier New', Courier, monospace;
+            font-weight: 700;
+        }
+        
+        .command-info p {
+            margin-top: 8px;
+            font-size: 0.9rem;
+            color: #635349;
+        }
+
+        .copy-btn {
+            background: #EFE4D5;
+            color: var(--color-text);
+            border: none;
+            padding: 10px 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 700;
+            transition: var(--transition-fast);
+        }
+
+        .copy-btn:hover {
+            background: var(--color-secondary);
+            color: white;
+        }
+
+        /* --- INSPIRATION (ARTISTAS) --- */
+        .inspiration {
+            background-color: #F8F1E7;
+        }
+        
+        .artists-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+        }
+        
+        .artist-card {
+            display: flex;
+            flex-direction: column;
+            background-color: var(--color-background);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: var(--shadow-md);
+            opacity: 0;
+            transform: translateY(30px);
+            transition: var(--transition-smooth) 0.5s;
+        }
+
+        .artist-card.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .artist-image {
+            height: 350px;
+            width: 100%;
+            object-fit: cover;
+            filter: grayscale(0.2) sepia(0.3);
+            transition: var(--transition-smooth);
+        }
+        
+        .artist-card:hover .artist-image {
+            transform: scale(1.05);
+            filter: grayscale(0) sepia(0);
+        }
+        
+        .artist-info {
+            padding: 30px;
+        }
+
+        .artist-name {
+            font-size: 2rem;
+            font-weight: 900;
+            margin-bottom: 1rem;
+        }
+
+        /* --- FOOTER (RODAPÉ) --- */
+        .footer {
+            background-color: #2D2520;
+            color: #e2d9cf;
+            padding: 60px 0;
+            text-align: center;
+        }
+        
+        .footer-logo {
+            font-family: var(--font-heading);
+            font-weight: 900;
+            font-size: 1.8rem;
+            color: var(--color-background);
+            margin-bottom: 1rem;
+        }
+        
+        .footer-socials {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            list-style: none;
+            margin-top: 2rem;
+        }
+        
+        .footer-socials a {
+            color: #e2d9cf;
+            font-size: 1.5rem;
+            transition: var(--transition-fast);
+        }
+        
+        .footer-socials a:hover {
+            color: var(--color-primary);
+            transform: translateY(-3px);
+        }
+        
+        .footer-copy {
+            margin-top: 3rem;
+            font-size: 0.9rem;
+            color: rgba(226, 217, 207, 0.5);
+        }
+
+        /* --- RESPONSIVIDADE --- */
+        @media (max-width: 992px) {
+            h2 { font-size: 2.5rem; }
+            .hero-title { font-size: 3rem; }
+            .hero-content, .artists-grid { grid-template-columns: 1fr; }
+            .hero-text { text-align: center; }
+            .hero-image-wrapper { margin-top: 40px; }
+            .artists-grid { gap: 30px; max-width: 500px; margin: 0 auto; }
+        }
+
+        @media (max-width: 768px) {
+            .nav-list {
+                display: none; /* Menu para de funcionar aqui, precisa de JS */
+            }
+            .mobile-menu-btn {
+                display: block;
+                background: none;
+                border: none;
+                color: var(--color-text);
+                font-size: 1.8rem;
+                cursor: pointer;
+            }
+            .features-grid { grid-template-columns: 1fr; }
+        }
+    </style>
 </head>
 <body>
-    <header class="cabecalho">
-<img class="cabecalho-imagem" src=" forró pé de serra.png" style="width:0,9px;height:60px;" >
-<nav class="cabecalho-menu">
-<a class="cabecalho-menu-item">comunidade Forró pé de serra</a>
-<a class="cabecalho-menu-item">Tutorial</a>
-<a class="cabecalho-menu-item">Open Source</a>
-<a class="cabecalho-menu-item">Comandos</a>
-</nav>
-    </header>
-    
-    <main class="conteudo ">
-<section class="conteudo-principal">
-<div class="conteudo-principal-escrito">
- <h1 class= "conteudo-principa-titulo">Viva o Forró!!!</h1>
-<h2 class="conteudo-principal-subtitulo">Se avexe não,
-    Amanhã pode acontecer tudo, inclusive nada</h2>
-<button class="conteudo-principal-escrito-botao">Me adicione</button>
-</div>
-<img class="conteudo-principal-imagem" src="Luiz_Gonzaga_Ilustracao.jpg" style=" width:400px;height:500px; " >
-</section>
 
-<section class="conteudo-secundario">
-<h3 class="conteudo-titulo"><strong>O que esse ritmo faz com você?</strong></h3>
-<p class="conteudo-paragrafo">Na madrugada nunca vi tanta alegria
-    Ta do jeito que eu queria não podia ser melhor
-    Arreda sanfoneiro, capricha zabumbeiro</p>
-    <p class="conteudo-paragrafo">Toda menina que enjoa da boneca é sinal que o amor já chegou no coração</p>
-</section>
+    <header class="header" id="header">
+        <div class="container">
+            <nav class="nav">
+                <a href="#" class="nav-logo">Senzala Bot</a>
+                <ul class="nav-list">
+                    <li><a href="#features" class="nav-link">Funcionalidades</a></li>
+                    <li><a href="#commands" class="nav-link">Comandos</a></li>
+                    <li><a href="#inspiration" class="nav-link">Inspiração</a></li>
+                </ul>
+                <a href="#" class="cta-button">Adicionar ao Discord</a>
+                <button class="mobile-menu-btn"><i class="fas fa-bars"></i></button>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <section class="hero" id="hero">
+            <div class="container">
+                <div class="hero-content">
+                    <div class="hero-text">
+                        <h1 class="hero-title">A Sanfona que Organiza sua Comunidade</h1>
+                        <p class="hero-subtitle">Moderação, música e a cultura do sertão direto no seu Discord. O ritmo que faltava para seu servidor.</p>
+                        <a href="#" class="cta-button">Me convide para a festa! <i class="fa-solid fa-arrow-right" style="margin-left: 8px;"></i></a>
+                    </div>
+                    <div class="hero-image-wrapper">
+                        <img src="https://i.pinimg.com/originals/8b/0b/38/8b0b38105b3f1d21167f3e6c871f244c.png" alt="Ilustração de uma sanfona (acordeão) estilizada" class="hero-image">
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="features" id="features">
+            <div class="container">
+                <h2>Um Bot Arretado</h2>
+                <p class="section-subtitle">Tudo que você precisa para manter a ordem e a alegria, sem perder a cadência.</p>
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon"><i class="fas fa-shield-halved"></i></div>
+                        <h3>Moderação Eficiente</h3>
+                        <p>Ferramentas poderosas para manter sua comunidade segura e organizada, do jeito que o mestre mandou.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon"><i class="fas fa-music"></i></div>
+                        <h3>Roda de Forró</h3>
+                        <p>Toque as melhores playlists de forró pé de serra, xote e baião. A trilha sonora perfeita para qualquer prosa.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon"><i class="fas fa-book-open"></i></div>
+                        <h3>Cultura do Sertão</h3>
+                        <p>Comandos interativos que trazem um pouco da sabedoria e da poesia da cultura nordestina para o seu chat.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="commands" id="commands">
+            <div class="container">
+                <h2>Principais Comandos</h2>
+                <p class="section-subtitle">Fáceis de usar e prontos para animar. Copie e cole no seu Discord para começar.</p>
+                <div class="commands-grid">
+                    <div class="command-card">
+                        <div class="command-info">
+                            <code data-command="/tocar asa-branca">/tocar asa-branca</code>
+                            <p>Inicia uma música ou playlist.</p>
+                        </div>
+                        <button class="copy-btn">Copiar</button>
+                    </div>
+                    <div class="command-card">
+                        <div class="command-info">
+                            <code data-command="/banir @usuario spam">/banir @usuario spam</code>
+                            <p>Remove um membro indesejado.</p>
+                        </div>
+                        <button class="copy-btn">Copiar</button>
+                    </div>
+                    <div class="command-card">
+                        <div class="command-info">
+                            <code data-command="/verso">/verso</code>
+                            <p>Exibe um verso de um poeta popular.</p>
+                        </div>
+                        <button class="copy-btn">Copiar</button>
+                    </div>
+                    <div class="command-card">
+                        <div class="command-info">
+                            <code data-command="/ajuda">/ajuda</code>
+                            <p>Mostra a lista completa de comandos.</p>
+                        </div>
+                        <button class="copy-btn">Copiar</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="inspiration" id="inspiration">
+            <div class="container">
+                <h2>Nossa Homenagem aos Reis do Baião</h2>
+                <p class="section-subtitle">O Senzala Bot é uma homenagem à genialidade de artistas que transformaram a música e a cultura do Brasil.</p>
+                <div class="artists-grid">
+                    <div class="artist-card">
+                        <img src="https://i.pinimg.com/1200x/20/75/ac/2075ac448cd165abefd65281f360650e.jpg" alt="Luiz Gonzaga, o Rei do Baião" class="artist-image">
+                        <div class="artist-info">
+                            <h3 class="artist-name">Luiz Gonzaga</h3>
+                            <p>O visionário que apresentou a riqueza musical do Nordeste ao Brasil e ao mundo, cantando a vida do sertanejo com sua sanfona inconfundível.</p>
+                        </div>
+                    </div>
+                    <div class="artist-card">
+                        <img src="https://i.pinimg.com/736x/76/fc/3c/76fc3cbc630d0160061eb958417d043d.jpg" alt="Dominguinhos, mestre sanfoneiro" class="artist-image">
+                        <div class="artist-info">
+                            <h3 class="artist-name">Dominguinhos</h3>
+                            <p>O herdeiro musical de Gonzagão. Um sanfoneiro virtuoso e de sensibilidade única, que emocionou gerações com sua sanfona e sua voz.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
     </main>
-   
-    <footer class="rodape">
-<img class="rodape-imagem" src="forró.jpg" alt="forró">
-    
-</footer>
-    
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-logo">Senzala Bot</div>
+            <p>O som do Nordeste na sua comunidade.</p>
+            <ul class="footer-socials">
+                <li><a href="#" aria-label="Discord"><i class="fab fa-discord"></i></a></li>
+                <li><a href="#" aria-label="GitHub"><i class="fab fa-github"></i></a></li>
+                <li><a href="#" aria-label="Twitter"><i class="fab fa-twitter"></i></a></li>
+            </ul>
+            <p class="footer-copy">&copy; 2025 Senzala Bot. Respeitando a cultura, conectando pessoas.</p>
+        </div>
+    </footer>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        // --- Efeito de Scroll no Cabeçalho ---
+        const header = document.getElementById('header');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) {
+                header.classList.add('scrolled');
+            } else {
+                header.classList.remove('scrolled');
+            }
+        });
+
+        // --- Funcionalidade de Copiar Comando ---
+        const copyButtons = document.querySelectorAll('.copy-btn');
+        copyButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                const commandText = button.previousElementSibling.querySelector('code').dataset.command;
+                navigator.clipboard.writeText(commandText).then(() => {
+                    button.textContent = 'Copiado!';
+                    setTimeout(() => {
+                        button.textContent = 'Copiar';
+                    }, 2000);
+                }).catch(err => {
+                    console.error('Erro ao copiar:', err);
+                });
+            });
+        });
+
+        // --- Animação de Elementos ao Rolar a Página ---
+        const animatedElements = document.querySelectorAll('.artist-card');
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, {
+            threshold: 0.2 // O elemento aparece quando 20% dele está visível
+        });
+
+        animatedElements.forEach(el => {
+            observer.observe(el);
+        });
+
+        
+    });
+</script>
+
 </body>
-</html
+</html>
